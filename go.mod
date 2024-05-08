@@ -1,3 +1,5 @@
-module ecom-application
+module github.com/Bilbottom/ecom-application
 
 go 1.22
+
+require github.com/gorilla/mux v1.8.1
