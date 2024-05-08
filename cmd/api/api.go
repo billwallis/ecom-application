@@ -26,7 +26,8 @@ func (s *APIServer) Run() error {
 	// A sub-router allows us to version our API
 	subRouter := router.PathPrefix("/api/v1").Subrouter()
 
-	userHandler := user.NewHandler()
+	userStore := user.NewStore(s.db)
+	userHandler := user.NewHandler(userStore)
 	userHandler.RegisterRoutes(subRouter) // prefix routes with `/api/v1`
 
 	log.Println("Listening on", s.addr)
