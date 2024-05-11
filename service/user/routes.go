@@ -2,6 +2,7 @@ package user
 
 import (
 	"fmt"
+	"github.com/Bilbottom/ecom-application/config"
 	"github.com/Bilbottom/ecom-application/service/auth"
 	"github.com/Bilbottom/ecom-application/types"
 	"github.com/Bilbottom/ecom-application/utils"
@@ -86,5 +87,12 @@ func (h *Handler) handleLogin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_ = utils.WriteJSON(w, http.StatusOK, map[string]string{"token": ""})
+	secret := []byte(config.Envs.JWTSecret)
+	token, err := auth.CreateJWT(secret, u.ID)
+	if err != nil {
+		utils.WriteError(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	_ = utils.WriteJSON(w, http.StatusOK, map[string]string{"token": token})
 }
