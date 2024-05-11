@@ -1,0 +1,50 @@
+# testing the API "in production"
+
+### Register a new user
+POST http://localhost:8080/api/v1/register
+Accept: application/json
+Content-Type: application/json
+
+{
+  "firstName": "John",
+  "lastName": "Doe",
+  "email": "valid@email.com",
+  "password": "password"
+}
+
+
+### Login
+POST http://localhost:8080/api/v1/login
+Accept: application/json
+Content-Type: application/json
+
+{
+  "email": "valid@email.com",
+  "password": "password"
+}
+
+> {% client.global.set("auth_token", response.body.token); %}
+
+
+### Get products
+GET http://localhost:8080/api/v1/products
+
+
+### Checkout cart
+POST http://localhost:8080/api/v1/cart/checkout
+Accept: application/json
+Content-Type: application/json
+Authorization: {{ auth_token }}
+
+{
+  "items": [
+    {
+      "productID": 1,
+      "quantity": 2
+    },
+    {
+      "productID": 2,
+      "quantity": 3
+    }
+  ]
+}
