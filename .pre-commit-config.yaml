@@ -3,6 +3,8 @@ ci:
   autoupdate_schedule: quarterly
   skip: ["golangci-lint-full"]  # just for now
 
+exclude: docs/docs.go
+
 repos:
   - repo: meta
     hooks:

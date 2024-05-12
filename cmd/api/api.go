@@ -3,14 +3,14 @@ package api
 import (
 	"database/sql"
 	"github.com/Bilbottom/ecom-application/service/address"
+	_ "github.com/Bilbottom/ecom-application/docs"
 	"github.com/Bilbottom/ecom-application/service/cart"
 	"github.com/Bilbottom/ecom-application/service/order"
 	"github.com/Bilbottom/ecom-application/service/product"
 	"github.com/Bilbottom/ecom-application/service/user"
+	"github.com/gorilla/mux"
 	"log"
 	"net/http"
-
-	"github.com/gorilla/mux"
 )
 
 type WebServer struct {
@@ -25,6 +25,20 @@ func NewWebServer(addr string, db *sql.DB) *WebServer {
 	}
 }
 
+// Run godoc
+//
+// @title           E-Commerce Application
+// @version         1.0
+// @description     An e-commerce application built with Go.
+//
+// @contact.name    Bilbottom
+// @contact.url     https://github.com/Bilbottom
+//
+// @license.name    Apache 2.0
+// @license.url     http://www.apache.org/licenses/LICENSE-2.0.html
+//
+// @host            localhost:8080
+// @BasePath        /api/v1
 func (s *WebServer) Run() error {
 	router := mux.NewRouter()
 	router.Use(requestLogger)

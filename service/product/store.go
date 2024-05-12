@@ -35,6 +35,16 @@ func scanRowsIntoProduct(rows *sql.Rows) (*types.Product, error) {
 	return product, nil
 }
 
+// GetProducts godoc
+//
+// @Summary        List accounts
+//
+// @Description    get all products from the product store
+// @Tags           products
+// @Accept         json
+// @Produce        json
+// @Success        200 {array}  []types.Product
+// @Router         /products [get]
 func (s *Store) GetProducts() ([]types.Product, error) {
 	rows, err := s.db.Query("select * from products")
 	if err != nil {

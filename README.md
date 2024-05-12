@@ -51,3 +51,89 @@ The database is MySQL on port `3306`. Make sure the following environment variab
 - `DB_PORT`: `3306`
 - `DB_USER`: `root`
 - `DB_PASSWORD`: `password`
+
+## REST API
+
+Docs are made available by the following package:
+
+- https://github.com/swaggo/swag
+
+Check out the docs at:
+
+- [docs/swagger.json](docs/swagger.json)
+
+## Data and service models
+
+### Data model
+
+```mermaid
+---
+title: E-com Data Model
+---
+erDiagram
+    User {
+        int    id
+        string first_name
+        string last_name
+        string email
+        string password
+    }
+    
+    Address {
+        int    id
+        int    user_id
+        bool   is_default
+        string line_1
+        string line_2
+        string city
+        string country
+        string postcode
+    }
+    
+    Product {
+        int     id
+        string  name
+        string  description
+        string  image
+        decimal price
+        int     quantity
+    }
+    
+    Order {
+        int     id
+        int     user_id
+        decimal total
+        string  status
+        %% TODO: create foreign key relationship to Address
+        string  address
+    }
+    
+    OrderItem {
+        int     id
+        int     order_id
+        int     product_id
+        int     quantity
+        decimal price
+    }
+    
+    User ||--o{ Address : "has"
+    User ||--o{ Order : "places"
+    Order ||--o{ OrderItem : "contains"
+    OrderItem }o--|| Product : "ordered"
+    Order }o--o{ Address : "ships to"
+```
+
+### Service model
+
+Each service generally has a handler and a store:
+
+- The handler is responsible for handling the request and response. This is the interface between the API and the service.
+- The store is responsible for the database operations. This is the interface between the service and the database.
+
+```mermaid
+---
+title: E-com Service Model
+---
+graph LR
+    User <--> UI <--API Calls--> Router <--> Service <--> Database
+```
