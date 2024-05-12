@@ -20,22 +20,22 @@ type Config struct {
 }
 
 func initConfig() Config {
-	host := getEnv("PUBLIC_HOST", "http://localhost")
-	port := getEnv("DB_PORT", "3306")
+	host := getEnvAsStr("PUBLIC_HOST", "http://localhost")
+	port := getEnvAsStr("DB_PORT", "3306")
 
 	return Config{
 		PublicHost:             host,
 		Port:                   port,
-		DBUser:                 getEnv("DB_USER", "root"),
-		DBPassword:             getEnv("DB_PASSWORD", "password"),
+		DBUser:                 getEnvAsStr("DB_USER", "root"),
+		DBPassword:             getEnvAsStr("DB_PASSWORD", "password"),
 		DBAddress:              fmt.Sprintf("%s:%s", host, port),
-		DBName:                 getEnv("DB_NAME", "ecom"),
+		DBName:                 getEnvAsStr("DB_NAME", "ecom"),
 		JWTExpirationInSeconds: getEnvAsInt("JWT_EXPIRATION_IN_SECONDS", 3600*24*7),
-		JWTSecret:              getEnv("JWT_SECRET", "not-so-secret-key"),
+		JWTSecret:              getEnvAsStr("JWT_SECRET", "not-so-secret-key"),
 	}
 }
 
-func getEnv(key string, default_ string) string {
+func getEnvAsStr(key string, default_ string) string {
 	if value, exists := os.LookupEnv(key); exists {
 		return value
 	}
@@ -53,3 +53,23 @@ func getEnvAsInt(key string, default_ int64) int64 {
 	}
 	return default_
 }
+
+//func getEnv[T string | int64](key string, default_ T) T {
+//	value, exists := os.LookupEnv(key)
+//	if !exists {
+//		return default_
+//	}
+//
+//	switch t := any(default_).(type) {
+//	default:
+//		fmt.Printf("unexpected type %T", t)
+//	case string:
+//		return value
+//	case int64:
+//		if number, err := strconv.ParseInt(value, 10, 64); err != nil {
+//			return number
+//		}
+//	}
+//
+//	return default_
+//}

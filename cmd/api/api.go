@@ -26,23 +26,31 @@ func NewWebServer(addr string, db *sql.DB) *WebServer {
 
 func (s *WebServer) Run() error {
 	router := mux.NewRouter()
-	// A sub-router allows us to version our API
+	router.Use(requestLogger)
 	subRouter := router.PathPrefix("/api/v1").Subrouter()
 
 	userStore := user.NewStore(s.db)
 	userHandler := user.NewHandler(userStore)
-	userHandler.RegisterRoutes(subRouter) // prefix routes with `/api/v1`
+	userHandler.RegisterRoutes(subRouter)
 
 	productStore := product.NewStore(s.db)
 	productHandler := product.NewHandler(productStore)
-	productHandler.RegisterRoutes(subRouter) // prefix routes with `/api/v1`
+	productHandler.RegisterRoutes(subRouter)
 
 	orderStore := order.NewStore(s.db)
 
 	cartHandler := cart.NewHandler(orderStore, productStore, userStore)
-	cartHandler.RegisterRoutes(subRouter) // prefix routes with `/api/v1`
+	cartHandler.RegisterRoutes(subRouter)
 
 	log.Println("Listening on", s.addr)
 
 	return http.ListenAndServe(s.addr, router)
+}
+
+// requestLogger prints the incoming request method and URL
+func requestLogger(h http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		log.Printf("%s %s %s", r.RemoteAddr, r.Method, r.URL)
+		h.ServeHTTP(w, r)
+	})
 }

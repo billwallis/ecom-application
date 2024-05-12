@@ -8,7 +8,7 @@ import (
 
 func NewMySQLStorage(config mysql.Config) (*sql.DB, error) {
 	dsn := config.FormatDSN()
-	log.Println("Connecting to database", dsn)
+	log.Println("Connecting to the database at:", dsn)
 
 	if err := createDatabase(config); err != nil {
 		return nil, err
