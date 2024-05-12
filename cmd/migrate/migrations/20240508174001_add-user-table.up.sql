@@ -8,4 +8,4 @@ create table if not exists users (
 
     primary key (id),
     unique key (email)
-);
+)

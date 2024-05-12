@@ -8,4 +8,4 @@ create table if not exists products (
     created_at timestamp not null default current_timestamp,
 
     primary key (id)
-);
+)

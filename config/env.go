@@ -21,7 +21,7 @@ type Config struct {
 
 func initConfig() Config {
 	host := getEnv("PUBLIC_HOST", "http://localhost")
-	port := getEnv("PORT", "3306")
+	port := getEnv("DB_PORT", "3306")
 
 	return Config{
 		PublicHost:             host,

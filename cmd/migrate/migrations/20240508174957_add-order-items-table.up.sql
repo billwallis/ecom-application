@@ -8,4 +8,4 @@ create table if not exists order_items (
     primary key (id),
     foreign key (order_id) references orders(id),
     foreign key (product_id) references products(id)
-);
+)

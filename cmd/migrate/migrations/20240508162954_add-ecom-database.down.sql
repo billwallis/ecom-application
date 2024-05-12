@@ -1,1 +1,1 @@
-# drop database if exists ecom;
+# drop database if exists ecom

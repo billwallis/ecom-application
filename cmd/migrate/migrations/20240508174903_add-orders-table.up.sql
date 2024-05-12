@@ -8,4 +8,4 @@ create table if not exists orders (
 
     primary key (id),
     foreign key (user_id) references users(id)
-);
+)

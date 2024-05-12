@@ -1,1 +1,1 @@
-create database if not exists ecom;
+create database if not exists ecom
