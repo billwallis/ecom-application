@@ -19,7 +19,7 @@ func getCartItemsIDs(items []types.CartItem) ([]int, error) {
 }
 
 // TODO: this logic should be wrapped into a single SQL transaction
-func (h *Handler) createOrder(ps []types.Product, items []types.CartItem, userID int) (int, float64, error) {
+func (h *Handler) createOrder(ps []types.Product, items []types.CartItem, userID int) (int, float64, string, error) {
 	productMap := make(map[int]types.Product)
 	for _, p := range ps {
 		productMap[p.ID] = p
@@ -27,7 +27,7 @@ func (h *Handler) createOrder(ps []types.Product, items []types.CartItem, userID
 
 	// check if products are in stock
 	if err := checkIfCartIsInStock(items, productMap); err != nil {
-		return 0, 0, err
+		return 0, 0, "", err
 	}
 
 	// calculate total price
@@ -39,19 +39,25 @@ func (h *Handler) createOrder(ps []types.Product, items []types.CartItem, userID
 		product.Quantity -= item.Quantity
 
 		if err := h.productStore.UpdateProduct(product); err != nil {
-			return 0, 0, err
+			return 0, 0, "", err
 		}
 	}
 
 	// create order
+	defaultAddress, err := h.addressStore.GetDefaultAddressByUserID(userID)
+	if err != nil {
+		return 0, 0, "", err
+	}
+	address := defaultAddress.Flatten()
+
 	orderID, err := h.orderStore.CreateOrder(types.Order{
 		UserID:  userID,
 		Total:   totalPrice,
 		Status:  "pending",
-		Address: "Some Address", // TODO: implement a new address service
+		Address: address,
 	})
 	if err != nil {
-		return 0, 0, err
+		return 0, 0, "", err
 	}
 
 	// create order items
@@ -63,11 +69,11 @@ func (h *Handler) createOrder(ps []types.Product, items []types.CartItem, userID
 			Price:     productMap[item.ProductID].Price,
 		})
 		if err != nil {
-			return 0, 0, err
+			return 0, 0, "", err
 		}
 	}
 
-	return orderID, totalPrice, nil
+	return orderID, totalPrice, address, nil
 }
 
 func checkIfCartIsInStock(cartItems []types.CartItem, products map[int]types.Product) error {

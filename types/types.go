@@ -1,6 +1,9 @@
 package types
 
-import "time"
+import (
+	"strings"
+	"time"
+)
 
 type UserStore interface {
 	GetUserByEmail(email string) (*User, error)
@@ -17,6 +20,12 @@ type ProductStore interface {
 type OrderStore interface {
 	CreateOrder(Order) (int, error)
 	CreateOrderItem(OrderItem) error
+}
+
+type AddressStore interface {
+	CreateAddress(Address) (int, error)
+	GetAddressesByUserID(int) ([]Address, error)
+	GetDefaultAddressByUserID(int) (*Address, error)
 }
 
 type User struct {
@@ -56,6 +65,28 @@ type OrderItem struct {
 	CreatedAt time.Time `json:"createdAt"`
 }
 
+type Address struct {
+	ID        int       `json:"id"`
+	UserID    int       `json:"userId"`
+	IsDefault bool      `json:"isDefault"`
+	Line1     string    `json:"line1"`
+	Line2     string    `json:"line2"`
+	City      string    `json:"city"`
+	Country   string    `json:"country"`
+	Postcode  string    `json:"postcode"`
+	CreatedAt time.Time `json:"createdAt"`
+}
+
+func (a *Address) Flatten() string {
+	return strings.Join([]string{
+		a.Line1,
+		a.Line2,
+		a.City,
+		a.Country,
+		a.Postcode,
+	}, "\n")
+}
+
 type RegisterUserPayload struct {
 	FirstName string `json:"firstName" validate:"required"`
 	LastName  string `json:"lastName" validate:"required"`
@@ -66,6 +97,15 @@ type RegisterUserPayload struct {
 type LoginUserPayload struct {
 	Email    string `json:"email" validate:"required,email"`
 	Password string `json:"password" validate:"required"`
+}
+
+type CreateAddressPayload struct {
+	Line1     string `json:"line1" validate:"required"`
+	Line2     string `json:"line2" default:""`
+	City      string `json:"city" validate:"required"`
+	Country   string `json:"country" validate:"required"`
+	Postcode  string `json:"postcode" validate:"required"`
+	IsDefault bool   `json:"isDefault" default:"false"`
 }
 
 type CartItem struct {

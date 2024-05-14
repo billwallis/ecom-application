@@ -2,6 +2,7 @@ package api
 
 import (
 	"database/sql"
+	"github.com/Bilbottom/ecom-application/service/address"
 	"github.com/Bilbottom/ecom-application/service/cart"
 	"github.com/Bilbottom/ecom-application/service/order"
 	"github.com/Bilbottom/ecom-application/service/product"
@@ -33,13 +34,17 @@ func (s *WebServer) Run() error {
 	userHandler := user.NewHandler(userStore)
 	userHandler.RegisterRoutes(subRouter)
 
+	addressStore := address.NewStore(s.db)
+	addressHandler := address.NewHandler(addressStore, userStore)
+	addressHandler.RegisterRoutes(subRouter)
+
 	productStore := product.NewStore(s.db)
 	productHandler := product.NewHandler(productStore)
 	productHandler.RegisterRoutes(subRouter)
 
 	orderStore := order.NewStore(s.db)
 
-	cartHandler := cart.NewHandler(orderStore, productStore, userStore)
+	cartHandler := cart.NewHandler(orderStore, addressStore, productStore, userStore)
 	cartHandler.RegisterRoutes(subRouter)
 
 	log.Println("Listening on", s.addr)

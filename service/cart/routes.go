@@ -12,13 +12,20 @@ import (
 
 type Handler struct {
 	orderStore   types.OrderStore
+	addressStore types.AddressStore
 	productStore types.ProductStore
 	userStore    types.UserStore
 }
 
-func NewHandler(orderStore types.OrderStore, productStore types.ProductStore, userStore types.UserStore) *Handler {
+func NewHandler(
+	orderStore types.OrderStore,
+	addressStore types.AddressStore,
+	productStore types.ProductStore,
+	userStore types.UserStore,
+) *Handler {
 	return &Handler{
 		orderStore:   orderStore,
+		addressStore: addressStore,
 		productStore: productStore,
 		userStore:    userStore,
 	}
@@ -55,7 +62,7 @@ func (h *Handler) handleCheckout(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	orderID, totalPrice, err := h.createOrder(ps, cart.Items, userID)
+	orderID, totalPrice, address, err := h.createOrder(ps, cart.Items, userID)
 	if err != nil {
 		utils.WriteError(w, http.StatusBadRequest, err)
 		return
@@ -64,5 +71,6 @@ func (h *Handler) handleCheckout(w http.ResponseWriter, r *http.Request) {
 	_ = utils.WriteJSON(w, http.StatusOK, map[string]any{
 		"total_price": totalPrice,
 		"order_id":    orderID,
+		"address":     address,
 	})
 }

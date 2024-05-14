@@ -26,8 +26,36 @@ Content-Type: application/json
 > {% client.global.set("auth_token", response.body.token); %}
 
 
+### Create address
+POST http://localhost:8080/api/v1/address
+Accept: application/json
+Content-Type: application/json
+Authorization: {{ auth_token }}
+
+{
+  "isDefault": true,
+  "line1": "123 Main St",
+  "city": "London",
+  "country": "UK",
+  "postcode": "AB12 3CD"
+}
+
+
+### Get addresses for user
+GET http://localhost:8080/api/v1/address
+Accept: application/json
+Authorization: {{ auth_token }}
+
+
+### Get default address for user
+GET http://localhost:8080/api/v1/address?default=true
+Accept: application/json
+Authorization: {{ auth_token }}
+
+
 ### Get products
 GET http://localhost:8080/api/v1/products
+Accept: application/json
 
 
 ### Checkout cart
