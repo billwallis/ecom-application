@@ -1,0 +1,14 @@
+---
+ci:
+  autoupdate_schedule: quarterly
+  skip: ["golangci-lint-full"]  # just for now
+
+repos:
+  - repo: meta
+    hooks:
+      - id: identity
+
+  - repo: https://github.com/golangci/golangci-lint
+    rev: v1.58.1
+    hooks:
+      - id: golangci-lint-full
