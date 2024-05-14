@@ -1,3 +1,11 @@
+<div align="center">
+
+[![Go](https://img.shields.io/badge/Go-1.22-blue.svg)](https://go.dev/)
+[![GitHub last commit](https://img.shields.io/github/last-commit/Bilbottom/ecom-application)](https://shields.io/badges/git-hub-last-commit)
+[![Tests](https://github.com/Bilbottom/ecom-application/actions/workflows/tests.yml/badge.svg)](https://github.com/Bilbottom/ecom-application/actions/workflows/tests.yml)
+
+</div>
+
 # E-commerce Application
 
 An e-commerce application built with Go.
