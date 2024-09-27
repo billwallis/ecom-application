@@ -3,11 +3,12 @@ module github.com/Bilbottom/ecom-application
 go 1.22
 
 require (
+	github.com/go-chi/chi/v5 v5.1.0
 	github.com/go-playground/validator/v10 v10.20.0
 	github.com/go-sql-driver/mysql v1.8.1
 	github.com/golang-jwt/jwt/v5 v5.2.1
 	github.com/golang-migrate/migrate/v4 v4.17.1
-	github.com/gorilla/mux v1.8.1
+	github.com/pkg/errors v0.9.1
 	golang.org/x/crypto v0.23.0
 )
 

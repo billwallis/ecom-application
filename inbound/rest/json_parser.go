@@ -1,10 +1,11 @@
-package utils
+package rest
 
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/go-playground/validator/v10"
 	"net/http"
+
+	"github.com/go-playground/validator/v10"
 )
 
 var Validate = validator.New()

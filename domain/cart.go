@@ -1,11 +1,33 @@
-package cart
+package domain
 
 import (
 	"fmt"
-	"github.com/Bilbottom/ecom-application/types"
 )
 
-func getCartItemsIDs(items []types.CartItem) ([]int, error) {
+type CartItem struct {
+	ProductID int `json:"productId"`
+	Quantity  int `json:"quantity"`
+}
+
+type CartService struct {
+	addressService AddressService
+	productService ProductService
+	orderService   OrderService
+}
+
+func NewCartModifier(
+	addressService AddressService,
+	productService ProductService,
+	orderService OrderService,
+) *CartService {
+	return &CartService{
+		addressService: addressService,
+		productService: productService,
+		orderService:   orderService,
+	}
+}
+
+func (s *CartService) GetCartItemsIDs(items []CartItem) ([]int, error) {
 	productIDs := make([]int, len(items))
 	for i, item := range items {
 		if item.Quantity <= 0 {
@@ -18,9 +40,9 @@ func getCartItemsIDs(items []types.CartItem) ([]int, error) {
 	return productIDs, nil
 }
 
-// TODO: this logic should be wrapped into a single SQL transaction
-func (h *Handler) createOrder(ps []types.Product, items []types.CartItem, userID int) (int, float64, string, error) {
-	productMap := make(map[int]types.Product)
+func (s *CartService) CreateOrderFromCart(ps []Product, items []CartItem, userID int) (int, float64, string, error) {
+	// TODO: this logic should be wrapped into a single SQL transaction
+	productMap := make(map[int]Product)
 	for _, p := range ps {
 		productMap[p.ID] = p
 	}
@@ -38,19 +60,19 @@ func (h *Handler) createOrder(ps []types.Product, items []types.CartItem, userID
 		product := productMap[item.ProductID]
 		product.Quantity -= item.Quantity
 
-		if err := h.productStore.UpdateProduct(product); err != nil {
+		if err := s.productService.UpdateProduct(product); err != nil {
 			return 0, 0, "", err
 		}
 	}
 
 	// create order
-	defaultAddress, err := h.addressStore.GetDefaultAddressByUserID(userID)
+	defaultAddress, err := s.addressService.GetDefaultAddressByUserID(userID)
 	if err != nil {
 		return 0, 0, "", err
 	}
 	address := defaultAddress.Flatten()
 
-	orderID, err := h.orderStore.CreateOrder(types.Order{
+	orderID, err := s.orderService.CreateOrder(Order{
 		UserID:  userID,
 		Total:   totalPrice,
 		Status:  "pending",
@@ -62,7 +84,7 @@ func (h *Handler) createOrder(ps []types.Product, items []types.CartItem, userID
 
 	// create order items
 	for _, item := range items {
-		err := h.orderStore.CreateOrderItem(types.OrderItem{
+		err = s.orderService.CreateOrderItem(OrderItem{
 			OrderID:   orderID,
 			ProductID: item.ProductID,
 			Quantity:  item.Quantity,
@@ -76,7 +98,7 @@ func (h *Handler) createOrder(ps []types.Product, items []types.CartItem, userID
 	return orderID, totalPrice, address, nil
 }
 
-func checkIfCartIsInStock(cartItems []types.CartItem, products map[int]types.Product) error {
+func checkIfCartIsInStock(cartItems []CartItem, products map[int]Product) error {
 	if len(cartItems) == 0 {
 		return fmt.Errorf("the cart is empty")
 	}
@@ -95,7 +117,7 @@ func checkIfCartIsInStock(cartItems []types.CartItem, products map[int]types.Pro
 	return nil
 }
 
-func calculateTotalPrice(cartItems []types.CartItem, products map[int]types.Product) float64 {
+func calculateTotalPrice(cartItems []CartItem, products map[int]Product) float64 {
 	total := 0.0
 
 	for _, item := range cartItems {

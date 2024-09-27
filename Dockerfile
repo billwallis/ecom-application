@@ -14,7 +14,7 @@ RUN go mod download && go mod verify
 
 # TODO: Don't copy everything; build the binary and expose that
 COPY . .
-RUN go build -v -o /usr/local/bin/app /usr/src/app/cmd/main.go
+RUN go build -v -o /usr/local/bin/app /usr/src/app/main.go
 
 # RUN sleep 10
 # COPY cmd/migrate/migrations/*.sql cmd/migrate/migrations/

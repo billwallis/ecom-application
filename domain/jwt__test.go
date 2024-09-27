@@ -1,12 +1,15 @@
-package auth
+package domain_test
 
-import "testing"
+import (
+	"github.com/Bilbottom/ecom-application/domain"
+	"testing"
+)
 
 func TestCreateJWT(t *testing.T) {
 	secret := []byte("secret")
 	userID := 1
 
-	token, err := CreateJWT(secret, userID)
+	token, err := domain.CreateJWT(secret, userID)
 	if err != nil {
 		t.Errorf("error creating jwt: %v", err)
 	}
