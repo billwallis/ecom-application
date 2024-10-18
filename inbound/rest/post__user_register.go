@@ -2,8 +2,9 @@ package rest
 
 import (
 	"fmt"
-	"github.com/go-playground/validator/v10"
 	"net/http"
+
+	"github.com/go-playground/validator/v10"
 
 	"github.com/Bilbottom/ecom-application/domain"
 	"github.com/Bilbottom/ecom-application/domain/auth"

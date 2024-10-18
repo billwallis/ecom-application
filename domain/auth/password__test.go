@@ -6,8 +6,12 @@ import (
 	"github.com/Bilbottom/ecom-application/domain/auth"
 )
 
-func TestHashPassword(t *testing.T) {
-	hash, err := auth.HashPassword("password")
+const (
+	plainPassword = "password"
+)
+
+func Test_PasswordCanBeHashed(t *testing.T) {
+	hash, err := auth.HashPassword(plainPassword)
 	if err != nil {
 		t.Errorf("error hashing password: %v", err)
 	}
@@ -17,17 +21,14 @@ func TestHashPassword(t *testing.T) {
 	}
 
 	if hash == "password" {
-		t.Errorf("expected hash to be different from password")
+		t.Errorf("expected hash to be different from plain")
 	}
 }
 
-func TestComparePassword(t *testing.T) {
-	hash, err := auth.HashPassword("password")
-	if err != nil {
-		t.Errorf("error hashing password: %v", err)
-	}
+func Test_PasswordsCanBeCompared(t *testing.T) {
+	hash, _ := auth.HashPassword(plainPassword)
 
-	if !auth.ComparePassword(hash, []byte("password")) {
+	if !auth.ComparePassword(hash, []byte(plainPassword)) {
 		t.Errorf("expected password to match hash")
 	}
 

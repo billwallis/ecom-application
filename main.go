@@ -41,7 +41,7 @@ func main() {
 	addressService := domain.NewAddressService(store)
 	productService := domain.NewProductService(store)
 	orderService := domain.NewOrderService(store)
-	cartService := domain.NewCartModifier(
+	cartService := domain.NewCartService(
 		*addressService,
 		*productService,
 		*orderService,

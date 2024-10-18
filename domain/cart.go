@@ -15,7 +15,7 @@ type CartService struct {
 	orderService   OrderService
 }
 
-func NewCartModifier(
+func NewCartService(
 	addressService AddressService,
 	productService ProductService,
 	orderService OrderService,

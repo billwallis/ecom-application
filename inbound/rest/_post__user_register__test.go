@@ -13,7 +13,7 @@ import (
 	"github.com/Bilbottom/ecom-application/inbound/rest"
 )
 
-func TestUserServiceHandlers(t *testing.T) {
+func Test_UserServiceCanHandleUserRegistration(t *testing.T) {
 	userStore := &mockUserStore{}
 	handler := rest.NewUserHandler(userStore)
 

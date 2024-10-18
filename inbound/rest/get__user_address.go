@@ -1,8 +1,9 @@
 package rest
 
 import (
-	"github.com/Bilbottom/ecom-application/domain"
 	"net/http"
+
+	"github.com/Bilbottom/ecom-application/domain"
 )
 
 type GetUserAddressHandler struct {
