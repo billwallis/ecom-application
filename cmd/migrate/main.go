@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"log"
 	"os"
 
@@ -44,11 +45,11 @@ func main() {
 	cmd := os.Args[(len(os.Args) - 1)]
 	switch cmd {
 	case "up":
-		if err := m.Up(); err != nil && err != migrate.ErrNoChange {
+		if err = m.Up(); err != nil && !errors.Is(err, migrate.ErrNoChange) {
 			log.Fatal(err)
 		}
 	case "down":
-		if err := m.Down(); err != nil && err != migrate.ErrNoChange {
+		if err = m.Down(); err != nil && !errors.Is(err, migrate.ErrNoChange) {
 			log.Fatal(err)
 		}
 	}
