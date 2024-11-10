@@ -31,6 +31,7 @@ go run main.go
 
 # ...alternatively, run via Docker
 docker compose up --detach
+docker compose down --volumes  # when you're done
 
 # test
 go test ./...

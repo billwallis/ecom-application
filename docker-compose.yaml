@@ -1,19 +1,30 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/compose-spec/compose-spec/master/schema/compose-spec.json
 ---
-services:
+networks:
+  e-commerce:
 
+services:
   mysql:
     image: mysql
     container_name: MySQL
+    ports: ["3306:3306"]
+    networks: ["e-commerce"]
     environment:
       MYSQL_ROOT_PASSWORD: password
-    ports: ["3306:3306"]
 
   ecom-app:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    image: ecom-app:latest
+    build: { context: ".", dockerfile: "docker/Dockerfile" }
+    image: ecom-app
     container_name: EComApp
     restart: on-failure
     ports: ["8080:8080"]
+    networks: ["e-commerce"]
+    depends_on: ["mysql"]
+
+  ecom-app-migrations:
+    command: docker/entrypoint-migrations.sh
+    image: ecom-app
+    container_name: Migrations
+    restart: on-failure
+    networks: ["e-commerce"]
     depends_on: ["mysql"]
