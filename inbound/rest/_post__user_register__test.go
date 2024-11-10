@@ -1,22 +1,24 @@
-package user
+package rest_test
 
 import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"github.com/Bilbottom/ecom-application/types"
-	"github.com/gorilla/mux"
 	"net/http"
 	"net/http/httptest"
 	"testing"
+
+	"github.com/gorilla/mux"
+
+	"github.com/Bilbottom/ecom-application/inbound/rest"
 )
 
-func TestUserServiceHandlers(t *testing.T) {
+func Test_UserServiceCanHandleUserRegistration(t *testing.T) {
 	userStore := &mockUserStore{}
-	handler := NewHandler(userStore)
+	handler := rest.NewUserHandler(userStore)
 
 	t.Run("should fail if the user payload is invalid", func(t *testing.T) {
-		payload := types.RegisterUserPayload{
+		payload := rest.RegisterUserPayload{
 			FirstName: "John",
 			LastName:  "Doe",
 			Email:     "invalid",
@@ -41,7 +43,7 @@ func TestUserServiceHandlers(t *testing.T) {
 	})
 
 	t.Run("should correctly register a user", func(t *testing.T) {
-		payload := types.RegisterUserPayload{
+		payload := rest.RegisterUserPayload{
 			FirstName: "John",
 			LastName:  "Doe",
 			Email:     "valid@email.com",
@@ -68,14 +70,14 @@ func TestUserServiceHandlers(t *testing.T) {
 
 type mockUserStore struct{}
 
-func (m *mockUserStore) GetUserByEmail(email string) (*types.User, error) {
+func (m *mockUserStore) GetUserByEmail(email string) (*rest.User, error) {
 	return nil, fmt.Errorf("user not found")
 }
 
-func (m *mockUserStore) GetUserByID(id int) (*types.User, error) {
+func (m *mockUserStore) GetUserByID(id int) (*rest.User, error) {
 	return nil, nil
 }
 
-func (m *mockUserStore) CreateUser(user types.User) error {
+func (m *mockUserStore) CreateUser(user rest.User) error {
 	return nil
 }

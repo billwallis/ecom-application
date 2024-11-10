@@ -1,18 +1,20 @@
 package main
 
 import (
-	"github.com/Bilbottom/ecom-application/config"
-	"github.com/Bilbottom/ecom-application/db"
-	mysqlConfig "github.com/go-sql-driver/mysql"
+	"log"
+	"os"
+
+	mysqlconfig "github.com/go-sql-driver/mysql"
 	"github.com/golang-migrate/migrate/v4"
 	"github.com/golang-migrate/migrate/v4/database/mysql"
 	_ "github.com/golang-migrate/migrate/v4/source/file"
-	"log"
-	"os"
+
+	"github.com/Bilbottom/ecom-application/config"
+	"github.com/Bilbottom/ecom-application/db"
 )
 
 func main() {
-	store, err := db.NewMySQLStorage(mysqlConfig.Config{
+	store, err := db.NewMySQLStorage(mysqlconfig.Config{
 		User:                 config.Envs.DBUser,
 		Passwd:               config.Envs.DBPassword,
 		Addr:                 config.Envs.DBAddress,

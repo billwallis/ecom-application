@@ -26,8 +26,8 @@ However, the corresponding commands still need to be documented somewhere, so he
 
 ```shell
 # build & run
-go build -o bin/ecom cmd/main.go
-go run cmd/main.go
+go build -o bin/ecom main.go
+go run main.go
 
 # ...alternatively, run via Docker
 docker compose up --detach
