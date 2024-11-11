@@ -17,11 +17,19 @@ type LoginUserPayload struct {
 }
 
 type PostUserLoginHandler struct {
+	appConfig    config.AppConfig
+	authService  domain.AuthService
 	userLoginner UserLoginner
 }
 
-func NewPostUserLoginHandler(userLoginner UserLoginner) *PostUserLoginHandler {
+func NewPostUserLoginHandler(
+	appConfig config.AppConfig,
+	authService domain.AuthService,
+	userLoginner UserLoginner,
+) *PostUserLoginHandler {
 	return &PostUserLoginHandler{
+		appConfig:    appConfig,
+		authService:  authService,
 		userLoginner: userLoginner,
 	}
 }
@@ -50,8 +58,8 @@ func (h *PostUserLoginHandler) ServeHTTP(writer http.ResponseWriter, request *ht
 		return
 	}
 
-	secret := []byte(config.Envs.JWTSecret)
-	token, err := domain.CreateJWT(secret, user.ID)
+	secret := []byte(h.appConfig.AuthConfig.JWTSecret)
+	token, err := h.authService.CreateJWT(secret, user.ID)
 	if err != nil {
 		WriteError(writer, http.StatusInternalServerError, err)
 		return

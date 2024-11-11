@@ -19,20 +19,22 @@ type contextKey string
 const UserKey contextKey = "userID"
 
 type AuthService struct {
+	authConfig  config.AuthConfig
 	userService UserService
 }
 
-func NewAuthService(userService UserService) *AuthService {
+func NewAuthService(authConfig config.AuthConfig, userService UserService) *AuthService {
 	return &AuthService{
+		authConfig:  authConfig,
 		userService: userService,
 	}
 }
 
-func (s *AuthService) WithJWTAuth(handlerFunc http.HandlerFunc) http.HandlerFunc {
+func (as *AuthService) WithJWTAuth(handlerFunc http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		tokenString := getTokenFromRequest(r)
 
-		token, err := validateToken(tokenString)
+		token, err := as.validateToken(tokenString)
 		if err != nil {
 			log.Printf("failed to validate token: %v", err)
 			//permissionDenied(w)
@@ -50,7 +52,7 @@ func (s *AuthService) WithJWTAuth(handlerFunc http.HandlerFunc) http.HandlerFunc
 
 		userID, _ := strconv.Atoi(str)
 
-		u, err := s.userService.GetUserByID(userID)
+		u, err := as.userService.GetUserByID(userID)
 		if err != nil {
 			log.Printf("failed to get user by id: %v", err)
 			//permissionDenied(w)
@@ -78,17 +80,17 @@ func getTokenFromRequest(r *http.Request) string {
 	return ""
 }
 
-func validateToken(t string) (*jwt.Token, error) {
+func (as *AuthService) validateToken(t string) (*jwt.Token, error) {
 	return jwt.Parse(t, func(t *jwt.Token) (interface{}, error) {
 		if _, ok := t.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("unexpected signing method: %v", t.Header["alg"])
 		}
-		return []byte(config.Envs.JWTSecret), nil
+		return []byte(as.authConfig.JWTSecret), nil
 	})
 }
 
-func CreateJWT(secret []byte, userID int) (string, error) {
-	expiration := time.Second * time.Duration(config.Envs.JWTExpirationInSeconds)
+func (as *AuthService) CreateJWT(secret []byte, userID int) (string, error) {
+	expiration := time.Second * time.Duration(as.authConfig.JWTExpirationInSeconds)
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"userID":    strconv.Itoa(userID),
 		"expiredAt": time.Now().Add(expiration).Unix(),

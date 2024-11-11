@@ -1,38 +1,47 @@
 package config
 
 import (
-	"fmt"
 	"os"
 	"strconv"
 )
 
-var Envs = initConfig()
-
-type Config struct {
-	PublicHost             string
-	Port                   string
-	DBUser                 string
-	DBPassword             string
-	DBAddress              string
-	DBName                 string
-	JWTExpirationInSeconds int64
-	JWTSecret              string
+type AppConfig struct {
+	Host       string
+	Port       string
+	Address    string
+	DBConfig   DBConfig
+	AuthConfig AuthConfig
 }
 
-func initConfig() Config {
-	host := getEnvAsStr("PUBLIC_HOST", "http://localhost")
-	port := getEnvAsStr("DB_PORT", "3306")
-
-	return Config{
-		PublicHost:             host,
-		Port:                   port,
-		DBUser:                 getEnvAsStr("DB_USER", "root"),
-		DBPassword:             getEnvAsStr("DB_PASSWORD", "password"),
-		DBAddress:              fmt.Sprintf("%s:%s", host, port),
-		DBName:                 getEnvAsStr("DB_NAME", "ecom"),
-		JWTExpirationInSeconds: getEnvAsInt("JWT_EXPIRATION_IN_SECONDS", 3600*24*7),
-		JWTSecret:              getEnvAsStr("JWT_SECRET", "not-so-secret-key"),
+func NewAppConfig() AppConfig {
+	return AppConfig{
+		Host: getEnvAsStr("PUBLIC_HOST", "localhost"),
+		Port: getEnvAsStr("PUBLIC_PORT", "8080"),
+		DBConfig: DBConfig{
+			User:     getEnvAsStr("DB_USER", "root"),
+			Password: getEnvAsStr("DB_PASSWORD", "password"),
+			Host:     getEnvAsStr("DB_HOST", "localhost"),
+			Port:     getEnvAsStr("DB_PORT", "3306"),
+			Name:     getEnvAsStr("DB_NAME", "ecom"),
+		},
+		AuthConfig: AuthConfig{
+			JWTExpirationInSeconds: getEnvAsInt("JWT_EXPIRATION_IN_SECONDS", 3600*24*7),
+			JWTSecret:              getEnvAsStr("JWT_SECRET", "not-so-secret-key"),
+		},
 	}
+}
+
+type DBConfig struct {
+	User     string
+	Password string
+	Host     string
+	Port     string
+	Name     string
+}
+
+type AuthConfig struct {
+	JWTExpirationInSeconds int64
+	JWTSecret              string
 }
 
 func getEnvAsStr(key string, default_ string) string {

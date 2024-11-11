@@ -7,11 +7,14 @@ import (
 
 	"github.com/go-chi/chi/v5"
 
+	"github.com/Bilbottom/ecom-application/config"
+	"github.com/Bilbottom/ecom-application/domain"
 	"github.com/Bilbottom/ecom-application/inbound/rest"
 )
 
 type Server struct {
-	Port               string
+	appConfig          config.AppConfig
+	authService        domain.AuthService
 	healthChecker      rest.HealthChecker
 	authVerifier       rest.AuthVerifier
 	userAddressGetter  rest.UserAddressGetter
@@ -24,7 +27,8 @@ type Server struct {
 }
 
 func NewServer(
-	port string,
+	appConfig config.AppConfig,
+	authService domain.AuthService,
 	healthChecker rest.HealthChecker,
 	authVerifier rest.AuthVerifier,
 	userAddressGetter rest.UserAddressGetter,
@@ -36,7 +40,8 @@ func NewServer(
 	cartCheckouter rest.CartCheckouter,
 ) *Server {
 	return &Server{
-		Port:               port,
+		appConfig:          appConfig,
+		authService:        authService,
 		healthChecker:      healthChecker,
 		authVerifier:       authVerifier,
 		userAddressGetter:  userAddressGetter,
@@ -50,10 +55,10 @@ func NewServer(
 }
 
 func (s *Server) ListenAndServe() error {
-	log.Println("Listening on", s.Port)
+	log.Println("Listening on", s.appConfig.Port)
 
 	server := http.Server{
-		Addr:         ":" + s.Port,
+		Addr:         ":" + s.appConfig.Port,
 		Handler:      s.createRouter(),
 		IdleTimeout:  65 * time.Second,
 		ReadTimeout:  30 * time.Second,
@@ -74,7 +79,7 @@ func (s *Server) createRouter() http.Handler {
 	postProductHandler := rest.NewPostProductHandler(s.productUpdater).ServeHTTP
 	getUserAddressHandler := rest.NewGetUserAddressHandler(s.userAddressGetter).ServeHTTP
 	postUserAddressHandler := rest.NewPostUserAddressHandler(s.userAddressUpdater).ServeHTTP
-	postUserLoginHandler := rest.NewPostUserLoginHandler(s.userLoginner).ServeHTTP
+	postUserLoginHandler := rest.NewPostUserLoginHandler(s.appConfig, s.authService, s.userLoginner).ServeHTTP
 	postUserRegisterHandler := rest.NewPostUserRegisterHandler(s.userRegisterer, s.userLoginner).ServeHTTP
 	postCartCheckoutHandler := rest.NewPostCartCheckoutHandler(s.cartCheckouter, s.productGetter).ServeHTTP
 
