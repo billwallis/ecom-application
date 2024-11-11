@@ -14,7 +14,7 @@ func NewGetProductHandler(productGetter ProductGetter) *GetProductHandler {
 	}
 }
 
-func (h *GetProductHandler) ServeHTTP(writer http.ResponseWriter, request *http.Request) {
+func (h *GetProductHandler) ServeHTTP(writer http.ResponseWriter, _ *http.Request) {
 	ps, err := h.productGetter.GetProducts()
 	if err != nil {
 		WriteError(writer, http.StatusInternalServerError, err)
