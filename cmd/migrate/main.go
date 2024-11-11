@@ -2,6 +2,7 @@ package main
 
 import (
 	"errors"
+	"fmt"
 	"log"
 	"os"
 
@@ -11,15 +12,16 @@ import (
 	_ "github.com/golang-migrate/migrate/v4/source/file"
 
 	"github.com/Bilbottom/ecom-application/config"
-	"github.com/Bilbottom/ecom-application/db"
 )
 
 func main() {
-	store, err := db.NewMySQLStorage(mysqlconfig.Config{
-		User:                 config.Envs.DBUser,
-		Passwd:               config.Envs.DBPassword,
-		Addr:                 config.Envs.DBAddress,
-		DBName:               config.Envs.DBName,
+	dbConfig := config.NewAppConfig().DBConfig
+
+	store, err := config.NewMySQLStorage(mysqlconfig.Config{
+		User:                 dbConfig.User,
+		Passwd:               dbConfig.Password,
+		Addr:                 fmt.Sprintf("%s:%s", dbConfig.Host, dbConfig.Port),
+		DBName:               dbConfig.Name,
 		Net:                  "tcp",
 		AllowNativePasswords: true,
 		ParseTime:            true,

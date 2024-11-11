@@ -6,7 +6,7 @@ import (
 
 	"github.com/go-sql-driver/mysql"
 
-	"github.com/Bilbottom/ecom-application/db"
+	"github.com/Bilbottom/ecom-application/config"
 	"github.com/Bilbottom/ecom-application/domain"
 	"github.com/Bilbottom/ecom-application/outbound/datastore"
 )
@@ -30,7 +30,7 @@ var (
 		AllowNativePasswords: true,
 		ParseTime:            true,
 	}
-	mySQLDataStore, _ = db.NewMySQLStorage(dbConfig)
+	mySQLDataStore, _ = config.NewMySQLStorage(dbConfig)
 	dataStore         = datastore.NewStore(mySQLDataStore)
 
 	addressService = domain.NewAddressService(dataStore)

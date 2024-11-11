@@ -1,8 +1,8 @@
 FROM golang:1.22-bullseye
 
-# use `mysql` for Docker (see docker-compose.yaml) and `localhost` for local development
-ENV PUBLIC_HOST=mysql
 
+# use `mysql` for Docker (see docker-compose.yaml) and `localhost` for local development
+ENV DB_HOST=mysql
 ENV DB_PORT=3306
 ENV DB_USER=root
 ENV DB_PASSWORD=password

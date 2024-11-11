@@ -2,28 +2,29 @@ package main
 
 import (
 	"database/sql"
+	"fmt"
 	"log"
 
 	"github.com/go-sql-driver/mysql"
 
 	"github.com/Bilbottom/ecom-application/config"
-	"github.com/Bilbottom/ecom-application/db"
 	"github.com/Bilbottom/ecom-application/domain"
 	"github.com/Bilbottom/ecom-application/inbound"
 	"github.com/Bilbottom/ecom-application/outbound/datastore"
 )
 
 const (
-	ExternalPort    = "8080"
 	NetworkProtocol = "tcp"
 )
 
 func main() {
-	mySQLStore, err := db.NewMySQLStorage(mysql.Config{
-		User:                 config.Envs.DBUser,
-		Passwd:               config.Envs.DBPassword,
-		Addr:                 config.Envs.DBAddress,
-		DBName:               config.Envs.DBName,
+	appConfig := config.NewAppConfig()
+	dbConfig := appConfig.DBConfig
+	mySQLStore, err := config.NewMySQLStorage(mysql.Config{
+		User:                 appConfig.DBConfig.User,
+		Passwd:               appConfig.DBConfig.Password,
+		Addr:                 fmt.Sprintf("%s:%s", dbConfig.Host, dbConfig.Port),
+		DBName:               appConfig.DBConfig.Name,
 		Net:                  NetworkProtocol,
 		AllowNativePasswords: true,
 		ParseTime:            true,
@@ -37,7 +38,7 @@ func main() {
 
 	healthChecker := domain.NewHealthChecker()
 	userService := domain.NewUserService(store)
-	authService := domain.NewAuthService(*userService)
+	authService := domain.NewAuthService(appConfig.AuthConfig, *userService)
 	addressService := domain.NewAddressService(store)
 	productService := domain.NewProductService(store)
 	orderService := domain.NewOrderService(store)
@@ -48,7 +49,8 @@ func main() {
 	)
 
 	server := inbound.NewServer(
-		ExternalPort,
+		appConfig,
+		*authService,
 		healthChecker,
 		authService,
 		addressService,
