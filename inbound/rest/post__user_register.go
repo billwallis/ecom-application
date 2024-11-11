@@ -4,8 +4,6 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/go-playground/validator/v10"
-
 	"github.com/Bilbottom/ecom-application/domain"
 	"github.com/Bilbottom/ecom-application/domain/auth"
 )
@@ -40,8 +38,7 @@ func (h *PostUserRegisterHandler) ServeHTTP(writer http.ResponseWriter, request 
 	}
 
 	if err := Validate.Struct(payload); err != nil {
-		errors := err.(validator.ValidationErrors)
-		WriteError(writer, http.StatusBadRequest, fmt.Errorf("invalid payload %v", errors))
+		WriteError(writer, http.StatusBadRequest, fmt.Errorf("invalid payload %w", err))
 		return
 	}
 

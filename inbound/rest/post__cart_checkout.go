@@ -4,8 +4,6 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/go-playground/validator/v10"
-
 	"github.com/Bilbottom/ecom-application/domain"
 )
 
@@ -38,9 +36,8 @@ func (h *PostCartCheckoutHandler) ServeHTTP(writer http.ResponseWriter, request 
 		return
 	}
 
-	if err := Validate.Struct(cart); err != nil {
-		errors := err.(validator.ValidationErrors)
-		WriteError(writer, http.StatusBadRequest, fmt.Errorf("invalid payload: %v", errors))
+	if err = Validate.Struct(cart); err != nil {
+		WriteError(writer, http.StatusBadRequest, fmt.Errorf("invalid payload: %w", err))
 		return
 	}
 

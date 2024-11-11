@@ -14,7 +14,7 @@ func NewHealthCheck(healthChecker HealthChecker) *HealthCheckHandler {
 	}
 }
 
-func (h *HealthCheckHandler) ServeHTTP(writer http.ResponseWriter, request *http.Request) {
+func (h *HealthCheckHandler) ServeHTTP(writer http.ResponseWriter, _ *http.Request) {
 	err := h.healthChecker.Check()
 	if err != nil {
 		WriteError(writer, http.StatusInternalServerError, err)

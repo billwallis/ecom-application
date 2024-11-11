@@ -14,6 +14,6 @@ func NewPostProductHandler(productUpdater ProductUpdater) *PostProductHandler {
 	}
 }
 
-func (h *PostProductHandler) ServeHTTP(writer http.ResponseWriter, request *http.Request) {
+func (h *PostProductHandler) ServeHTTP(writer http.ResponseWriter, _ *http.Request) {
 	_ = WriteJSON(writer, http.StatusOK, nil)
 }
