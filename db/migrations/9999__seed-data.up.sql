@@ -1,3 +1,8 @@
+/*
+    This isn't a "real" migration, just a way to chuck some data into the
+    database while I'm still working on this project
+*/
+
 insert into products(id, name, description, image, price, quantity)
 values
     (1, 'Product 1', 'Description 1', 'image1.jpg', 100, 10),
@@ -9,3 +14,4 @@ values
     (7, 'Product 7', 'Description 7', 'image7.jpg', 700, 70),
     (8, 'Product 8', 'Description 8', 'image8.jpg', 800, 80),
     (9, 'Product 9', 'Description 9', 'image9.jpg', 900, 90)
+;
