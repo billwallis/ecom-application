@@ -4,38 +4,18 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/go-sql-driver/mysql"
-
 	"github.com/Bilbottom/ecom-application/config"
 	"github.com/Bilbottom/ecom-application/domain"
 	"github.com/Bilbottom/ecom-application/outbound/datastore"
 )
 
-const (
-	dbUser          = "root"
-	dbPassword      = "password"
-	dbAddress       = "localhost:3306"
-	dbName          = "ecom"
-	NetworkProtocol = "tcp"
-)
-
 var (
 	// TODO: use a test or mock database
-	dbConfig = mysql.Config{
-		User:                 dbUser,
-		Passwd:               dbPassword,
-		Addr:                 dbAddress,
-		DBName:               dbName,
-		Net:                  NetworkProtocol,
-		AllowNativePasswords: true,
-		ParseTime:            true,
-	}
-	mySQLDataStore, _ = config.NewMySQLStorage(dbConfig)
-	dataStore         = datastore.NewStore(mySQLDataStore)
+	store = newDataStore()
 
-	addressService = domain.NewAddressService(dataStore)
-	productService = domain.NewProductService(dataStore)
-	orderService   = domain.NewOrderService(dataStore)
+	addressService = domain.NewAddressService(store)
+	productService = domain.NewProductService(store)
+	orderService   = domain.NewOrderService(store)
 
 	cartService = domain.NewCartService(
 		*addressService,
@@ -58,4 +38,13 @@ func Test_CartCanGetCartItemsIDs(t *testing.T) {
 	if !reflect.DeepEqual(ids, expected) {
 		t.Errorf("expected %v, got %v", expected, ids)
 	}
+}
+
+func newDataStore() domain.Store {
+	dbConn, err := config.GetDatabaseConnection(config.NewAppConfig().DBConfig)
+	if err != nil {
+		panic(err)
+	}
+
+	return datastore.NewPostgresStore(dbConn)
 }

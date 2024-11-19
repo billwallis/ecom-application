@@ -5,6 +5,12 @@
 ### Health check
 GET http://localhost:8080/healthcheck
 
+> {%
+    client.test("Server is healthy", function () {
+        client.assert(response.status === 200, "Response status is not 200");
+    });
+%}
+
 
 ### Register a new user
 POST http://localhost:8080/api/v1/register
@@ -18,6 +24,12 @@ Content-Type: application/json
   "password": "password"
 }
 
+> {%
+    client.test("User can be registered", function () {
+        client.assert(response.status === 201, "Response status is not 201");
+    });
+%}
+
 
 ### Login
 POST http://localhost:8080/api/v1/login
@@ -29,7 +41,12 @@ Content-Type: application/json
   "password": "password"
 }
 
-> {% client.global.set("auth_token", response.body.token); %}
+> {%
+    client.global.set("auth_token", response.body.token);
+    client.test("User can log in", function () {
+        client.assert(response.status === 200, "Response status is not 200");
+    });
+%}
 
 
 ### Create address
@@ -46,11 +63,23 @@ Authorization: {{auth_token}}
   "postcode": "AB12 3CD"
 }
 
+> {%
+    client.test("Address can be added", function () {
+        client.assert(response.status === 201, "Response status is not 201");
+    });
+%}
+
 
 ### Get addresses for user
 GET http://localhost:8080/api/v1/address
 Accept: application/json
 Authorization: {{auth_token}}
+
+> {%
+    client.test("Addresses can be retrieved", function () {
+        client.assert(response.status === 200, "Response status is not 200");
+    });
+%}
 
 
 ### Get default address for user
@@ -58,11 +87,23 @@ GET http://localhost:8080/api/v1/address?default=true
 Accept: application/json
 Authorization: {{auth_token}}
 
+> {%
+    client.test("Default address can be retrieved", function () {
+        client.assert(response.status === 200, "Response status is not 200");
+    });
+%}
+
 
 ### Get products
 GET http://localhost:8080/api/v1/products
 Accept: application/json
 Authorization: {{auth_token}}
+
+> {%
+    client.test("Products can be retrieved", function () {
+        client.assert(response.status === 200, "Response status is not 200");
+    });
+%}
 
 
 ### Checkout cart
@@ -83,3 +124,9 @@ Authorization: {{auth_token}}
     }
   ]
 }
+
+> {%
+    client.test("Cart can be checked out", function () {
+        client.assert(response.status === 200, "Response status is not 200");
+    });
+%}

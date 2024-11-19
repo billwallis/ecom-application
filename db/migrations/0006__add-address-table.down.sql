@@ -1,1 +1,1 @@
-drop table if exists addresses
+drop table if exists ecom.addresses

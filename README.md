@@ -49,6 +49,6 @@ docker exec EComApp    go run cmd/migrate/main.go down
 The database is MySQL on port `3306`. Make sure the following environment variables are set in your runtime environment:
 
 - `PUBLIC_HOST`: `localhost` (the default is `http://localhost`)
-- `DB_PORT`: `3306`
-- `DB_USER`: `root`
-- `DB_PASSWORD`: `password`
+- `DB_PORT`: `5432`
+- `DB_USERNAME`: `postgres`
+- `DB_PASSWORD`: `postgres`

@@ -1,43 +1,35 @@
 package main
 
 import (
+	"database/sql"
 	"errors"
-	"fmt"
 	"log"
 	"os"
 
-	mysqlconfig "github.com/go-sql-driver/mysql"
 	"github.com/golang-migrate/migrate/v4"
-	"github.com/golang-migrate/migrate/v4/database/mysql"
+	"github.com/golang-migrate/migrate/v4/database/pgx/v5"
 	_ "github.com/golang-migrate/migrate/v4/source/file"
 
 	"github.com/Bilbottom/ecom-application/config"
 )
 
 func main() {
-	dbConfig := config.NewAppConfig().DBConfig
-
-	store, err := config.NewMySQLStorage(mysqlconfig.Config{
-		User:                 dbConfig.User,
-		Passwd:               dbConfig.Password,
-		Addr:                 fmt.Sprintf("%s:%s", dbConfig.Host, dbConfig.Port),
-		DBName:               dbConfig.Name,
-		Net:                  "tcp",
-		AllowNativePasswords: true,
-		ParseTime:            true,
-	})
+	db, err := sql.Open(
+		"pgx",
+		config.NewAppConfig().DBConfig.GetDSN(),
+	)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	driver, err := mysql.WithInstance(store, &mysql.Config{})
+	driver, err := pgx.WithInstance(db, &pgx.Config{})
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	m, err := migrate.NewWithDatabaseInstance(
 		"file://db/migrations",
-		"mysql",
+		"pgx",
 		driver,
 	)
 	if err != nil {

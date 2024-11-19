@@ -4,27 +4,29 @@ networks:
   e-commerce:
 
 services:
-  mysql:
-    image: mysql
-    container_name: MySQL
-    ports: ["3306:3306"]
+  datastore:
+    image: postgres:17
+    container_name: PostgreSQL
+    command: ["postgres", "-c", "log_statement=all"]
+    ports: ["5432:5432"]
     networks: ["e-commerce"]
     environment:
-      MYSQL_ROOT_PASSWORD: password
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_USER: postgres
 
-  ecom-app:
+  backend:
     build: { context: ".", dockerfile: "docker/Dockerfile" }
     image: ecom-app
     container_name: EComApp
     restart: on-failure
     ports: ["8080:8080"]
     networks: ["e-commerce"]
-    depends_on: ["mysql"]
+    depends_on: ["datastore"]
 
-  ecom-app-migrations:
+  backend-migrations:
     command: docker/entrypoint-migrations.sh
     image: ecom-app
     container_name: Migrations
     restart: on-failure
     networks: ["e-commerce"]
-    depends_on: ["mysql"]
+    depends_on: ["datastore"]
