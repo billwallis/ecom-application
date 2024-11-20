@@ -45,3 +45,23 @@ The database is PostgreSQL on port `5432`. After spinning up the Docker containe
 - `DB_PORT`: `5432`
 - `DB_USERNAME`: `postgres`
 - `DB_PASSWORD`: `postgres`
+
+### Analytics
+
+This project uses DuckDB for analytics. Using version `>=1.1` we can hook DuckDB up to the PostgreSQL instance with:
+
+```
+install postgres;
+load postgres;
+attach 'host=localhost port=5432 dbname=postgres user=postgres password=postgres' as backend (
+    type postgres,
+    schema 'ecom',
+    read_only
+);
+use backend.ecom;
+
+/* Check that it works */
+show tables;
+```
+
+Copies of the tables can easily be made into a local DuckDB instance while the app is up so that the data can be queried without needing the Docker containers running.

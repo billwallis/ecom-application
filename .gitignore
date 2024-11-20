@@ -1,3 +1,9 @@
+###  Data files
+*.[cpt]sv
+*.xls*
+*.*db
+
+
 ###  Binaries for programs and plugins
 bin/
 *.exe
