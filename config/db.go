@@ -1,41 +1,18 @@
 package config
 
 import (
-	"database/sql"
+	"context"
 	"log"
 
-	"github.com/go-sql-driver/mysql"
+	"github.com/jackc/pgx/v5"
 )
 
-func NewMySQLStorage(config mysql.Config) (*sql.DB, error) {
-	dsn := config.FormatDSN()
-	log.Println("Connecting to the database at:", dsn)
-
-	if err := createDatabase(config); err != nil {
+func GetDatabaseConnection(config DBConfig) (*pgx.Conn, error) {
+	conn, err := pgx.Connect(context.Background(), config.GetDSN())
+	if err != nil {
+		log.Fatalf("Database error: %s", err)
 		return nil, err
 	}
 
-	db, err := sql.Open("mysql", dsn)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	return db, nil
-}
-
-func createDatabase(config mysql.Config) error {
-	dbName := config.DBName
-	config.DBName = ""
-
-	db, err := sql.Open("mysql", config.FormatDSN())
-	if err != nil {
-		return err
-	}
-
-	_, err = db.Exec("create database if not exists " + dbName)
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return conn, err
 }

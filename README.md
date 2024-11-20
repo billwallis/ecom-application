@@ -35,20 +35,13 @@ docker compose down --volumes  # when you're done
 
 # test
 go test ./...
-
-# create migration (needs the golang-migrate CLI installed)
-migrate create -ext sql -dir /migrations/ <migration_name>
-
-# migrate up/down (via Docker)
-docker exec EComApp    go run cmd/migrate/main.go up
-docker exec EComApp    go run cmd/migrate/main.go down
 ```
 
 ## Database
 
-The database is MySQL on port `3306`. Make sure the following environment variables are set in your runtime environment:
+The database is PostgreSQL on port `5432`. After spinning up the Docker containers, you can connect to it using the following credentials:
 
-- `PUBLIC_HOST`: `localhost` (the default is `http://localhost`)
-- `DB_PORT`: `3306`
-- `DB_USER`: `root`
-- `DB_PASSWORD`: `password`
+- `DB_HOST`: `postgres`
+- `DB_PORT`: `5432`
+- `DB_USERNAME`: `postgres`
+- `DB_PASSWORD`: `postgres`

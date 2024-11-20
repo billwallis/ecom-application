@@ -1,11 +1,12 @@
 FROM golang:1.22-bullseye
 
 
-# use `mysql` for Docker (see docker-compose.yaml) and `localhost` for local development
-ENV DB_HOST=mysql
-ENV DB_PORT=3306
-ENV DB_USER=root
-ENV DB_PASSWORD=password
+# use `datastore` for Docker (see docker-compose.yaml) and `localhost` for local development
+ENV DB_HOST=datastore
+ENV DB_PORT=5432
+#ENV DB_NAME=ecom
+ENV DB_USERNAME=postgres
+ENV DB_PASSWORD=postgres
 
 WORKDIR /usr/src/app
 
@@ -13,7 +14,7 @@ COPY go.mod go.sum ./
 RUN go mod download \
  && go mod verify \
  && apt-get update \
- && apt-get install -y default-mysql-client
+ && apt-get install -y postgresql-client
 
 # TODO: Don't copy everything; build the binary and expose that
 COPY . .

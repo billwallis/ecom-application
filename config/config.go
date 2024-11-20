@@ -1,6 +1,7 @@
 package config
 
 import (
+	"fmt"
 	"os"
 	"strconv"
 )
@@ -18,11 +19,12 @@ func NewAppConfig() AppConfig {
 		Host: getEnvAsStr("PUBLIC_HOST", "localhost"),
 		Port: getEnvAsStr("PUBLIC_PORT", "8080"),
 		DBConfig: DBConfig{
-			User:     getEnvAsStr("DB_USER", "root"),
-			Password: getEnvAsStr("DB_PASSWORD", "password"),
+			Username: getEnvAsStr("DB_USERNAME", "postgres"),
+			Password: getEnvAsStr("DB_PASSWORD", "postgres"),
 			Host:     getEnvAsStr("DB_HOST", "localhost"),
-			Port:     getEnvAsStr("DB_PORT", "3306"),
-			Name:     getEnvAsStr("DB_NAME", "ecom"),
+			Port:     getEnvAsStr("DB_PORT", "5432"),
+			//Name:     getEnvAsStr("DB_NAME", "ecom"),  // TODO: figure out how to change to this (maybe, do we need to?)
+			Name: getEnvAsStr("DB_NAME", "postgres"),
 		},
 		AuthConfig: AuthConfig{
 			JWTExpirationInSeconds: getEnvAsInt("JWT_EXPIRATION_IN_SECONDS", 3600*24*7),
@@ -32,11 +34,22 @@ func NewAppConfig() AppConfig {
 }
 
 type DBConfig struct {
-	User     string
+	Username string
 	Password string
 	Host     string
 	Port     string
 	Name     string
+}
+
+func (dbc DBConfig) GetDSN() string {
+	return fmt.Sprintf(
+		"postgres://%s:%s@%s:%s/%s",
+		dbc.Username,
+		dbc.Password,
+		dbc.Host,
+		dbc.Port,
+		dbc.Name,
+	)
 }
 
 type AuthConfig struct {

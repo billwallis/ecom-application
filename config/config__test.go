@@ -12,11 +12,11 @@ func Test_EnvironmentVariablesCanBeRead(t *testing.T) {
 			Host: "localhost",
 			Port: "8080",
 			DBConfig: config.DBConfig{
-				User:     "root",
-				Password: "password",
+				Username: "postgres",
+				Password: "postgres",
 				Host:     "localhost",
-				Port:     "3306",
-				Name:     "ecom",
+				Port:     "5432",
+				Name:     "postgres",
 			},
 			AuthConfig: config.AuthConfig{
 				JWTExpirationInSeconds: 604800,

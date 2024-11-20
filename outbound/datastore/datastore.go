@@ -1,30 +1,33 @@
 package datastore
 
 import (
-	"database/sql"
+	"context"
 	"fmt"
 	"log"
-	"strings"
+
+	"github.com/jackc/pgx/v5"
 
 	"github.com/Bilbottom/ecom-application/domain"
 )
 
-type Store struct {
-	db *sql.DB
+type PostgresStore struct {
+	dbConn *pgx.Conn
 }
 
-func NewStore(db *sql.DB) *Store {
-	return &Store{
-		db: db,
+func NewPostgresStore(dbConn *pgx.Conn) *PostgresStore {
+	return &PostgresStore{
+		dbConn: dbConn,
 	}
 }
 
-func (s *Store) CreateAddress(address domain.Address) (addressId int, err error) {
+func (ps *PostgresStore) CreateAddress(address domain.Address) (addressId int, err error) {
 	log.Printf("Creating address for user: %d\n%v", address.UserID, address)
-	res, err := s.db.Exec(
+	res := ps.dbConn.QueryRow(
+		context.Background(),
 		`
-		insert into addresses (user_id, is_default, line_1, line_2, city, country, postcode)
-		values (?, ?, ?, ?, ?, ?, ?)
+		insert into ecom.addresses (user_id, is_default, line_1, line_2, city, country, postcode)
+		values ($1, $2, $3, $4, $5, $6, $7)
+		returning id
 		`,
 		address.UserID,
 		address.IsDefault,
@@ -34,32 +37,31 @@ func (s *Store) CreateAddress(address domain.Address) (addressId int, err error)
 		address.Country,
 		address.Postcode,
 	)
+
+	var lastInsertId int
+	err = res.Scan(&lastInsertId)
 	if err != nil {
-		return -1, err
+		return -1, fmt.Errorf("failed to create address: %w", err)
 	}
 
-	id, err := res.LastInsertId()
-	if err != nil {
-		return -1, err
-	}
-
-	return int(id), nil
+	return lastInsertId, nil
 }
 
-func (s *Store) GetAddressesByUserID(userId int) (addresses []domain.Address, err error) {
-	rows, err := s.db.Query(
-		`select * from addresses where user_id = ?`,
+func (ps *PostgresStore) GetAddressesByUserID(userId int) (addresses []domain.Address, err error) {
+	rows, err := ps.dbConn.Query(
+		context.Background(),
+		`select * from ecom.addresses where user_id = $1`,
 		userId,
 	)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to get addresses: %w", err)
 	}
 
 	var address []domain.Address
 	for rows.Next() {
 		a, err := scanRowsIntoAddress(rows)
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("failed to scan rows into address: %w", err)
 		}
 
 		address = append(address, *a)
@@ -68,20 +70,21 @@ func (s *Store) GetAddressesByUserID(userId int) (addresses []domain.Address, er
 	return address, nil
 }
 
-func (s *Store) GetDefaultAddressByUserID(userId int) (address *domain.Address, err error) {
-	rows, err := s.db.Query(
-		`select * from addresses where user_id = ? and is_default = 1`,
+func (ps *PostgresStore) GetDefaultAddressByUserID(userId int) (address *domain.Address, err error) {
+	rows, err := ps.dbConn.Query(
+		context.Background(),
+		`select * from ecom.addresses where user_id = $1 and is_default`,
 		userId,
 	)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to get default address: %w", err)
 	}
 
 	var addresses []domain.Address
 	for rows.Next() {
 		addr, err := scanRowsIntoAddress(rows)
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("failed to scan rows into address: %w", err)
 		}
 
 		addresses = append(addresses, *addr)
@@ -94,7 +97,7 @@ func (s *Store) GetDefaultAddressByUserID(userId int) (address *domain.Address, 
 	return &addresses[0], nil
 }
 
-func scanRowsIntoAddress(rows *sql.Rows) (*domain.Address, error) {
+func scanRowsIntoAddress(rows pgx.Rows) (*domain.Address, error) {
 	address := new(domain.Address)
 	err := rows.Scan(
 		&address.ID,
@@ -114,47 +117,56 @@ func scanRowsIntoAddress(rows *sql.Rows) (*domain.Address, error) {
 	return address, nil
 }
 
-func (s *Store) CreateOrder(order domain.Order) (orderId int, err error) {
-	res, err := s.db.Exec(
+func (ps *PostgresStore) CreateOrder(order domain.Order) (orderId int, err error) {
+	res := ps.dbConn.QueryRow(
+		context.Background(),
 		`
-		insert into orders(user_id, total, status, address)
-		values (?, ?, ?, ?)
+		insert into ecom.orders(user_id, total, status, address)
+		values ($1, $2, $3, $4)
+		returning id
 		`,
 		order.UserID, order.Total, order.Status, order.Address,
 	)
-	if err != nil {
-		return 0, err
-	}
 
-	id, err := res.LastInsertId()
+	var lastInsertId int
+	err = res.Scan(&lastInsertId)
 	if err != nil {
-		return 0, err
+		return 0, fmt.Errorf("failed to create order: %w", err)
 	}
+	log.Printf("Created order with ID %d", lastInsertId)
 
-	return int(id), nil
+	return lastInsertId, nil
 }
 
-func (s *Store) CreateOrderItem(orderItem domain.OrderItem) (err error) {
-	_, err = s.db.Exec(
+func (ps *PostgresStore) CreateOrderItem(orderItem domain.OrderItem) (err error) {
+	_, err = ps.dbConn.Exec(
+		context.Background(),
 		`
-		insert into order_items(order_id, product_id, quantity, price)
-		values (?, ?, ?, ?)
+		insert into ecom.order_items(order_id, product_id, quantity, price)
+		values ($1, $2, $3, $4)
 		`,
 		orderItem.OrderID, orderItem.ProductID, orderItem.Quantity, orderItem.Price,
 	)
-	return err
+
+	if err != nil {
+		return fmt.Errorf("failed to create order item: %w", err)
+	}
+	return nil
 }
 
-func (s *Store) GetProducts() (products []domain.Product, err error) {
-	rows, err := s.db.Query("select * from products")
+func (ps *PostgresStore) GetProducts() (products []domain.Product, err error) {
+	rows, err := ps.dbConn.Query(
+		context.Background(),
+		"select * from ecom.products",
+	)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to get products: %w", err)
 	}
 
 	for rows.Next() {
 		p, err := scanRowsIntoProduct(rows)
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("failed to scan rows into product: %w", err)
 		}
 
 		products = append(products, *p)
@@ -163,24 +175,31 @@ func (s *Store) GetProducts() (products []domain.Product, err error) {
 	return products, nil
 }
 
-func (s *Store) GetProductsByIDs(productIds []int) (products []domain.Product, err error) {
-	placeholders := strings.Repeat(",?", len(productIds)-1)
-	query := fmt.Sprintf("select * from products where id in (?%s)", placeholders)
+func (ps *PostgresStore) GetProductsByIDs(productIds []int) (products []domain.Product, err error) {
+	if len(productIds) == 0 {
+		return []domain.Product{}, nil
+	}
+
+	placeholders := "$1"
+	for i := 2; i <= len(productIds); i++ {
+		placeholders += fmt.Sprintf(",$%d", i)
+	}
+	query := fmt.Sprintf("select * from ecom.products where id in (%s)", placeholders)
 
 	args := make([]interface{}, len(productIds))
 	for i, v := range productIds {
 		args[i] = v
 	}
 
-	rows, err := s.db.Query(query, args...)
+	rows, err := ps.dbConn.Query(context.Background(), query, args...)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to get products by ids: %w", err)
 	}
 
 	for rows.Next() {
 		p, err := scanRowsIntoProduct(rows)
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("failed to scan rows into product: %w", err)
 		}
 
 		products = append(products, *p)
@@ -189,7 +208,7 @@ func (s *Store) GetProductsByIDs(productIds []int) (products []domain.Product, e
 	return products, nil
 }
 
-func scanRowsIntoProduct(rows *sql.Rows) (*domain.Product, error) {
+func scanRowsIntoProduct(rows pgx.Rows) (*domain.Product, error) {
 	product := new(domain.Product)
 	err := rows.Scan(
 		&product.ID,
@@ -207,37 +226,42 @@ func scanRowsIntoProduct(rows *sql.Rows) (*domain.Product, error) {
 	return product, nil
 }
 
-func (s *Store) UpdateProduct(product domain.Product) (err error) {
-	_, err = s.db.Exec(
+func (ps *PostgresStore) UpdateProduct(product domain.Product) (err error) {
+	_, err = ps.dbConn.Exec(
+		context.Background(),
 		`
-		update products
-		set name = ?,
-			price = ?,
-			image = ?,
-			description = ?,
-			quantity = ?
-		where id = ?
+		update ecom.products
+		set name = $1,
+			price = $2,
+			image = $3,
+			description = $4,
+			quantity = $5
+		where id = $6
 		`,
 		product.Name, product.Price, product.Image, product.Description, product.Quantity, product.ID,
 	)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to update product: %w", err)
 	}
 
 	return nil
 }
 
-func (s *Store) GetUserByEmail(email string) (user *domain.User, err error) {
-	rows, err := s.db.Query("select * from users where email = ?", email)
+func (ps *PostgresStore) GetUserByEmail(email string) (user *domain.User, err error) {
+	rows, err := ps.dbConn.Query(
+		context.Background(),
+		"select * from ecom.users where email = $1",
+		email,
+	)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to get user by email: %w", err)
 	}
 
 	u := new(domain.User)
 	for rows.Next() {
 		u, err = scanRowIntoUser(rows)
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("failed to scan row into user: %w", err)
 		}
 	}
 
@@ -248,17 +272,21 @@ func (s *Store) GetUserByEmail(email string) (user *domain.User, err error) {
 	return u, nil
 }
 
-func (s *Store) GetUserByID(id int) (user *domain.User, err error) {
-	rows, err := s.db.Query("select * from users where id = ?", id)
+func (ps *PostgresStore) GetUserByID(id int) (user *domain.User, err error) {
+	rows, err := ps.dbConn.Query(
+		context.Background(),
+		"select * from ecom.users where id = $1",
+		id,
+	)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to get user by id: %w", err)
 	}
 
 	u := new(domain.User)
 	for rows.Next() {
 		u, err = scanRowIntoUser(rows)
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("failed to scan row into user: %w", err)
 		}
 	}
 
@@ -269,7 +297,7 @@ func (s *Store) GetUserByID(id int) (user *domain.User, err error) {
 	return u, nil
 }
 
-func scanRowIntoUser(rows *sql.Rows) (*domain.User, error) {
+func scanRowIntoUser(rows pgx.Rows) (*domain.User, error) {
 	user := new(domain.User)
 	err := rows.Scan(
 		&user.ID,
@@ -286,16 +314,17 @@ func scanRowIntoUser(rows *sql.Rows) (*domain.User, error) {
 	return user, nil
 }
 
-func (s *Store) CreateUser(user domain.User) (err error) {
-	_, err = s.db.Exec(
-		"insert into users (first_name, last_name, email, password) values (?, ?, ?, ?)",
+func (ps *PostgresStore) CreateUser(user domain.User) (err error) {
+	_, err = ps.dbConn.Exec(
+		context.Background(),
+		"insert into ecom.users (first_name, last_name, email, password) values ($1, $2, $3, $4)",
 		user.FirstName,
 		user.LastName,
 		user.Email,
 		user.Password,
 	)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to create user: %w", err)
 	}
 
 	return nil
