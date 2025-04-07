@@ -9,6 +9,6 @@ repos:
       - id: identity
 
   - repo: https://github.com/golangci/golangci-lint
-    rev: v1.63.4
+    rev: v2.0.2
     hooks:
       - id: golangci-lint-full
