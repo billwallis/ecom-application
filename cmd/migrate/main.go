@@ -10,7 +10,7 @@ import (
 	"github.com/golang-migrate/migrate/v4/database/pgx/v5"
 	_ "github.com/golang-migrate/migrate/v4/source/file"
 
-	"github.com/Bilbottom/ecom-application/config"
+	"github.com/billwallis/ecom-application/config"
 )
 
 func main() {

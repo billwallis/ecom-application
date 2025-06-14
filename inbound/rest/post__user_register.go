@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/Bilbottom/ecom-application/domain"
-	"github.com/Bilbottom/ecom-application/domain/auth"
+	"github.com/billwallis/ecom-application/domain"
+	"github.com/billwallis/ecom-application/domain/auth"
 )
 
 type RegisterUserPayload struct {

@@ -1,7 +1,7 @@
 package config_test
 
 import (
-	"github.com/Bilbottom/ecom-application/config"
+	"github.com/billwallis/ecom-application/config"
 	"testing"
 )
 

@@ -1,4 +1,4 @@
-module github.com/Bilbottom/ecom-application
+module github.com/billwallis/ecom-application
 
 go 1.24
 

@@ -1,4 +1,4 @@
-FROM golang:1.22-bullseye
+FROM golang:1.24-bullseye
 
 
 # use `datastore` for Docker (see docker-compose.yaml) and `localhost` for local development

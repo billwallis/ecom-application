@@ -7,7 +7,7 @@ import (
 
 	"github.com/jackc/pgx/v5"
 
-	"github.com/Bilbottom/ecom-application/domain"
+	"github.com/billwallis/ecom-application/domain"
 )
 
 type PostgresStore struct {

@@ -3,7 +3,7 @@ package auth_test
 import (
 	"testing"
 
-	"github.com/Bilbottom/ecom-application/domain/auth"
+	"github.com/billwallis/ecom-application/domain/auth"
 )
 
 const (

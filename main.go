@@ -3,10 +3,10 @@ package main
 import (
 	"log"
 
-	"github.com/Bilbottom/ecom-application/config"
-	"github.com/Bilbottom/ecom-application/domain"
-	"github.com/Bilbottom/ecom-application/inbound"
-	"github.com/Bilbottom/ecom-application/outbound/datastore"
+	"github.com/billwallis/ecom-application/config"
+	"github.com/billwallis/ecom-application/domain"
+	"github.com/billwallis/ecom-application/inbound"
+	"github.com/billwallis/ecom-application/outbound/datastore"
 )
 
 const (

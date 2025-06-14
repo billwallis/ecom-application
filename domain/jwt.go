@@ -11,7 +11,7 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/pkg/errors"
 
-	"github.com/Bilbottom/ecom-application/config"
+	"github.com/billwallis/ecom-application/config"
 )
 
 type contextKey string

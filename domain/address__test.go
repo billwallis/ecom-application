@@ -3,7 +3,7 @@ package domain_test
 import (
 	"testing"
 
-	"github.com/Bilbottom/ecom-application/domain"
+	"github.com/billwallis/ecom-application/domain"
 )
 
 func Test_AddressCanBeFlattened(t *testing.T) {

@@ -3,7 +3,7 @@ package rest
 import (
 	"net/http"
 
-	"github.com/Bilbottom/ecom-application/domain"
+	"github.com/billwallis/ecom-application/domain"
 )
 
 type GetUserAddressHandler struct {

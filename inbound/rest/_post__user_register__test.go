@@ -10,7 +10,7 @@ import (
 
 	"github.com/gorilla/mux"
 
-	"github.com/Bilbottom/ecom-application/inbound/rest"
+	"github.com/billwallis/ecom-application/inbound/rest"
 )
 
 func Test_UserServiceCanHandleUserRegistration(t *testing.T) {

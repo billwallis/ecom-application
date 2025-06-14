@@ -7,9 +7,9 @@ import (
 
 	"github.com/go-chi/chi/v5"
 
-	"github.com/Bilbottom/ecom-application/config"
-	"github.com/Bilbottom/ecom-application/domain"
-	"github.com/Bilbottom/ecom-application/inbound/rest"
+	"github.com/billwallis/ecom-application/config"
+	"github.com/billwallis/ecom-application/domain"
+	"github.com/billwallis/ecom-application/inbound/rest"
 )
 
 type Server struct {
